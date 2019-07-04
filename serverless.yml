@@ -1,0 +1,81 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: video-thumb
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: ap-northeast-2
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+        - "s3:GetBucketNotification"
+        - "s3:PutBucketNotification"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::*"
+            - "/*"
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+# For new s3 bucket
+
+functions:
+  main:
+    handler: bin/main
+    environment:
+      S3_BUCKET: bucket-name # S3 bucket name
+      SCREENSHOT_TIME: 00:00:01.0 # Thumbnail screenshot timing
+      RESOLUTION: 420x280 # Thumbnail resolution
+    events:
+      - s3:
+          bucket: bucket-name # S3 bucket name
+          events:
+            - s3:ObjectCreated:*
+          rules:
+            - prefix: videos/
+            - suffix: .mp4
+
+# For existing s3:
+# 1. Install: npm install serverless-plugin-existing-s3
+# 2. Uncomment lines below 
+#
+#plugins:
+# - serverless-plugin-existing-s3
+#
+#functions:
+#  main:
+#    handler: bin/main
+#    environment:
+#      S3_BUCKET: bucket-name # S3 bucket name
+#      SCREENSHOT_TIME: "00:00:01.0" # Thumbnail screenshot timing
+#      RESOLUTION: "420x280" # Thumbnail resolution
+#    events:
+#      - existingS3:
+#          bucket: bucket-name # S3 bucket name
+#          events:
+#            - s3:ObjectCreated:*
+#          rules:
+#            - prefix: videos/
+#            - suffix: .mp4
