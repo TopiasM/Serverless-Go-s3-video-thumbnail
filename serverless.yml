@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: video-thumb
+service: video-thumbnail
 
 provider:
   name: aws
@@ -20,13 +20,8 @@ provider:
   iamRoleStatements:
     - Effect: "Allow"
       Action:
-        - "s3:ListBucket"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-    - Effect: "Allow"
-      Action:
+        - "s3:GetObject"
         - "s3:PutObject"
-        - "s3:GetBucketNotification"
-        - "s3:PutBucketNotification"
       Resource:
         Fn::Join:
           - ""
@@ -48,6 +43,8 @@ functions:
       S3_BUCKET: bucket-name # S3 bucket name
       SCREENSHOT_TIME: 00:00:01.0 # Thumbnail screenshot timing
       RESOLUTION: 420x280 # Thumbnail resolution
+      THUMB_EXTENSION: .jpg # Thumbnail file extension
+      VIDEO_EXTENSION: .mp4 # Same as s3 event suffix
     events:
       - s3:
           bucket: bucket-name # S3 bucket name
@@ -69,8 +66,10 @@ functions:
 #    handler: bin/main
 #    environment:
 #      S3_BUCKET: bucket-name # S3 bucket name
-#      SCREENSHOT_TIME: "00:00:01.0" # Thumbnail screenshot timing
-#      RESOLUTION: "420x280" # Thumbnail resolution
+#      SCREENSHOT_TIME: 00:00:01.0 # Thumbnail screenshot timing
+#      RESOLUTION: 420x280 # Thumbnail resolution
+#      THUMB_EXTENSION: .jpg # Thumbnail file extension
+#      VIDEO_EXTENSION: .mp4 # Same as s3 event suffix
 #    events:
 #      - existingS3:
 #          bucket: bucket-name # S3 bucket name
